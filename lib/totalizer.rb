@@ -1,3 +1,4 @@
 require "totalizer/version"
-require 'totalizer/totalizer'
 require 'totalizer/errors'
+require 'totalizer/metric'
+require 'totalizer/factory'

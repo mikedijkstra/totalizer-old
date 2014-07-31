@@ -24,8 +24,7 @@ metrics such as acquisition, activation, engagement, retention and churn.
 
 ### Metric
 
-All calculations use one or more Metric objects. To create a Metric just use
-this in your Rails application:
+All calculations use one or more Metric objects. To create a Metric just use this in your Rails application:
 
 ```
 Totalizer::Metric.new({ title: 'New Users', model: User })
@@ -34,18 +33,52 @@ Totalizer::Metric.new({ title: 'New Users', model: User })
 This will return a Metric object with the following properties:
 
 ```
-{ title: 'New Users', value: 10, change: 5, change_label: "+5" }
+{ title: 'New Users', value: 10, previous_value: 5, change: 5, change_label: "+5" }
 ```
 
 You can pass the following options into the Metric:
 + `model` (required): The Rails model class that Totalizer will query.
-+ `duration`: Default is `7`. Must be an integer.
++ `start_date`: When to start measuring your records. Default is `Date.today.beginning_of_day`.
++ `duration`: Duration (in days) to measure your records. Default is `7`. Must be an integer.
 + `filter`: Write a custom query to filter to determine which records to use in
   calculation. For example to find all users who created a public response you could
 pass in: `filter: "is_public = true"`.
 + `map`: Default is `id`. Decide which field to map unique records on. For
   example, to find unique users who did a response you could pass in: `map:
 'user_id'`.
+
+### Factory
+
+The Totalizer Factory makes it easy to create summary's of your important metrics.
+
+To create a Factory just use this in your Rails application:
+
+```
+Totalizer::Factory.new
+```
+
+You can pass the following options into the Factory:
++ `durations`: An array for the durations to create metrics for. Default is `[7, 30]`.
++ `start_date`: When to start measuring your records. Default is `Date.today.beginning_of_day`.
+
+#### Counter
+
+The counter factory will create a metric for each duration in your Factory from your Factory start date.
+
+To build a counter Factory just use this in your Rails application:
+
+```
+@factory = Totalizer::Factory.new
+@metrics = @factory.build :counter, model: User
+```
+
+This will return an array of Metric objects with the following properties:
+
+```
+[{ title: 'Last 7 days', value: 10, previous_value: 5, change: 5, change_label: "+5" }, { title: 'Last 30 days', value: 100, previous_value: 110, change: -10, change_label: "-10" }]
+```
+
+When you build a counter Factory you can pass all the same parameters available when you create a metric.
 
 ## Contributing
 

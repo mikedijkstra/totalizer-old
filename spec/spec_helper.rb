@@ -12,9 +12,9 @@ require 'factory_girl'
 require 'database_cleaner'
 
 ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
-load File.dirname(__FILE__) + '/schema.rb'
-require File.dirname(__FILE__) + '/models.rb'
-require File.dirname(__FILE__) + '/factories.rb'
+load File.dirname(__FILE__) + '/support/schema.rb'
+require File.dirname(__FILE__) + '/support/models.rb'
+require File.dirname(__FILE__) + '/support/factories.rb'
 
 RSpec.configure do |config|
   config.treat_symbols_as_metadata_keys_with_true_values = true
