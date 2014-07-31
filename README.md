@@ -25,13 +25,13 @@ Totalizer provides tools to Ruby on Rails developers to create calculations for 
 
 All calculations use one or more Metric objects. To create a Metric just use this in your Rails application:
 
-```
+```ruby
 Totalizer::Metric.new({ title: 'New Users', model: User })
 ```
 
 This will return a Metric object with the following properties:
 
-```
+```ruby
 { title: 'New Users', value: 10, previous_value: 5, change: 5, change_label: "+5" }
 ```
 
@@ -54,7 +54,7 @@ The Totalizer Factory makes it easy to create a summary of your metrics.
 
 To create a Factory just use this in your Rails application:
 
-```
+```ruby
 Totalizer::Factory.new
 ```
 
@@ -70,14 +70,14 @@ The counter factory will create a metric for each duration in your Factory from 
 
 To build a counter Factory just use this in your Rails application:
 
-```
+```ruby
 @factory = Totalizer::Factory.new
 @metrics = @factory.build :counter, model: User
 ```
 
 This will return an array of Metric objects with the following properties:
 
-```
+```ruby
 [{ title: 'Last 7 days', value: 10, previous_value: 5, change: 5, change_label: "+5" }, { title: 'Last 30 days', value: 100, previous_value: 110, change: -10, change_label: "-10" }]
 ```
 
