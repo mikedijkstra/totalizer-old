@@ -1,5 +1,3 @@
 require "totalizer/version"
-
-module Totalizer
-  # Your code goes here...
-end
+require 'totalizer/totalizer'
+require 'totalizer/errors'
