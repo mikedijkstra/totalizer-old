@@ -23,7 +23,7 @@ Totalizer provides tools to Ruby on Rails developers to create calculations for 
 
 ## Metric
 
-All calculations use one or more Metric objects. To create a Metric just use this in your Rails application:
+A Metric is a calculation based on one of your models for a duration of time. To create a Metric just use this in your Rails application:
 
 ```ruby
 Totalizer::Metric.new({ title: 'New Users', model: User })
@@ -38,6 +38,7 @@ This will return a Metric object with the following properties:
 #### Options
 
 You can pass the following options into the Metric:
++ `title`: A string used to identify the Metric.
 + `model` (required): The Rails model class that Totalizer will query.
 + `start_date`: When to start measuring your records. Default is `Date.today.beginning_of_day`.
 + `duration`: Duration (in days) to measure your records. Default is `7`. Must be an integer.
@@ -47,6 +48,39 @@ pass in: `filter: "is_public = true"`.
 + `map`: Default is `id`. Decide which field to map unique records on. For
   example, to find unique users who did a response you could pass in: `map:
 'user_id'`.
+
+## Funnel
+
+A Funnel allows you to compare records from multiple metrics and returns a series of steps. To create a Funnel just use this in your Rails application:
+
+```ruby
+first_step_metric = Totalizer::Metric.new({ model: User })
+second_step_metric = Totalizer::Metric.new({ model: User, filter: "actions > 0" })
+
+Totalizer::Funnel.new title: 'Activation Funnel', metrics: [first_step_metric, second_step_metric]
+```
+
+This will return an array of Step objects with the following properties:
+
+```ruby
+[{ title: 'Signed up', value: 10, change: 0, change_label: "100%" }, { title: 'Activated', value: 5, change: 0.50, change_label: "50%" }]
+```
+
+#### Options
+
+You can pass the following options into the Funnel:
++ `title`: A string used to identify the Funnel.
++ `metrics`: An array of Metric objects to compare.
+
+## Step
+
+A Step object is the result of comparing two Metric objects in a  Funnel calculation. You do not need to create your own Step objects but you will interact with them.
+
+A Step object will have the following properties:
++ `title`: A string used to identify the Metric used for the Step calculation.
++ `value`: The number of Metric records.
++ `change`: The change in Metric records from previous step.
++ `change_label`: The change as a percentage String.
 
 ## Factory
 
@@ -66,9 +100,9 @@ You can pass the following options into the Factory:
 
 ### Counter
 
-The counter factory will create a metric for each duration in your Factory from your Factory start date.
+The Counter Factory will create a Metric for each duration in your Factory from your Factory start date.
 
-To build a counter Factory just use this in your Rails application:
+To build a Counter Factory just use this in your Rails application:
 
 ```ruby
 @factory = Totalizer::Factory.new
@@ -82,6 +116,23 @@ This will return an array of Metric objects with the following properties:
 ```
 
 When you build a counter Factory you can pass all the same options you would use when you create a metric.
+
+### Funnel
+
+The Funnel Factory will create Funnels for each duration in your Factory from your Factory start date.
+
+To build a Funnel Factory just use this in your rails application:
+
+```ruby
+@factory = Totalizer::Factory.new
+@funnels = @factory.build :funnel, steps: [{ title: 'Signed up', model: User }, { title: 'Posted', model: Post, map: 'user_id' }]
+```
+
+This will return an array of Step objects with the following properties:
+
+```ruby
+[{ title: 'Last 7 days', steps: [{ title: 'Signed up', value: 10, change: 0, change_label: "100%" }, { title: 'Activated', value: 5, change: 0.50, change_label: "50%" }]}, { title: 'Last 7 days', steps: [{ title: 'Signed up', value: 60, change: 0, change_label: "100%" }, { title: 'Activated', value: 36, change: 0.60, change_label: "60%" }]}]
+```
 
 ## Contributing
 

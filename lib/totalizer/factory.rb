@@ -25,5 +25,13 @@ module Totalizer
     def build_counter options={}
       Metric.new options
     end
+
+    def build_funnel options={}
+      metrics = []
+      options[:steps].each do |step|
+        metrics << Metric.new(step.merge(start_date: options[:start_date], duration: options[:duration]))
+      end
+      Funnel.new title: options[:title], metrics: metrics
+    end
   end
 end
