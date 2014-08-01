@@ -56,7 +56,6 @@ A Funnel allows you to compare records from multiple metrics and returns a serie
 ```ruby
 first_step_metric = Totalizer::Metric.new({ model: User })
 second_step_metric = Totalizer::Metric.new({ model: User, filter: "actions > 0" })
-
 Totalizer::Funnel.new title: 'Activation Funnel', metrics: [first_step_metric, second_step_metric]
 ```
 
@@ -131,7 +130,7 @@ To build a Funnel Factory just use this in your rails application:
 This will return an array of Step objects with the following properties:
 
 ```ruby
-[{ title: 'Last 7 days', steps: [{ title: 'Signed up', value: 10, change: 0, change_label: "100%" }, { title: 'Activated', value: 5, change: 0.50, change_label: "50%" }]}, { title: 'Last 7 days', steps: [{ title: 'Signed up', value: 60, change: 0, change_label: "100%" }, { title: 'Activated', value: 36, change: 0.60, change_label: "60%" }]}]
+[{ title: 'Last 7 days', steps: [{ title: 'Signed up', value: 10, change: 0, change_label: "100%" }, { title: 'Activated', value: 5, change: 0.50, change_label: "50%" }]}, { title: 'Last 30 days', steps: [{ title: 'Signed up', value: 60, change: 0, change_label: "100%" }, { title: 'Activated', value: 36, change: 0.60, change_label: "60%" }]}]
 ```
 
 ## Contributing
