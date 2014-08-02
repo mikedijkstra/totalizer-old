@@ -1,7 +1,6 @@
 # Totalizer - Calculate important metrics in your Rails application.
 
-Provides tools to Ruby on Rails developers to create calculations for
-acquisition, activation, engagement, retention and churn.
+Provides tools to Ruby on Rails developers to create calculations for acquisition, activation, engagement, retention and churn.
 
 ## Installation
 
@@ -19,7 +18,9 @@ Or install it yourself as:
 
 *** 
 
-Totalizer provides tools to Ruby on Rails developers to create calculations for metrics such as acquisition, activation, engagement, retention and churn.
+## Hosted Version
+
+I've had a number of requests for a hosted version. If this is something you're interested in please sign up to be notified at [http://totalizer.io](http://totalizer.io "Totalizer")
 
 ## Metric
 
