@@ -16,11 +16,17 @@ Or install it yourself as:
 
     $ gem install totalizer
 
+  
+
 *** 
 
 ## Hosted Version
 
-I've had a number of requests for a hosted version. If this is something you're interested in please sign up to be notified at [http://totalizer.io](http://totalizer.io "Totalizer")
+I've had a number of requests for a hosted version. If this is something you're interested in please sign up to be notified at [http://www.totalizer.io](http://www.totalizer.io "Totalizer")
+
+***
+
+    
 
 ## Metric
 
