@@ -3,6 +3,7 @@ module Totalizer
     def initialize params
       @params = params
       validate!
+      calculate!
     end
 
     def change
@@ -22,7 +23,7 @@ module Totalizer
     end
 
     def ids
-      calculate
+      @ids
     end
 
     def map
@@ -34,7 +35,7 @@ module Totalizer
     end
 
     def previous_ids
-      calculate(2)
+      @previous_ids
     end
 
     def previous_value
@@ -57,6 +58,11 @@ module Totalizer
 
     def build_date_range duration_multiplier
       start_date - (duration * duration_multiplier).days..start_date - (duration * (duration_multiplier - 1)).days
+    end
+
+    def calculate!
+      @ids = calculate
+      @previous_ids = calculate(2)
     end
 
     def calculate duration_multiplier=1

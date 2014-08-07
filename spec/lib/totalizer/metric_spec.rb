@@ -7,8 +7,7 @@ describe Totalizer::Metric do
     end
 
     it "requires a valid filter" do
-      metric = Totalizer::Metric.new({ model: User, start_date: Date.today, duration: 7, filter: 'non_existant_field = true' })
-      expect{metric.calculate}.to raise_exception
+      expect{ Totalizer::Metric.new({ model: User, start_date: Date.today, duration: 7, filter: 'non_existant_field = true' }) }.to raise_exception
     end
   end
 
