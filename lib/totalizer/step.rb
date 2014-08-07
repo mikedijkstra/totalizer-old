@@ -5,7 +5,8 @@ module Totalizer
     end
 
     def change
-      @params[:change]
+      return 0 if @params[:change].to_s == 'NaN'
+      @params[:change] || 0
     end
 
     def change_label
