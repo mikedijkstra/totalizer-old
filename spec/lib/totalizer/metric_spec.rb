@@ -66,7 +66,7 @@ describe Totalizer::Metric do
       expect(metric.finish).to eq 3
     end
 
-    it "calculates the rate of rate" do
+    it "calculates the rate of change" do
       expect(metric.rate).to eq 2
     end
 
@@ -75,6 +75,14 @@ describe Totalizer::Metric do
 
       it "requires a valid filter" do
         expect{ metric.value }.to raise_exception(ActiveRecord::StatementInvalid)
+      end
+    end
+
+    describe 'with 0 records' do
+      let(:metric) { Totalizer::Metric.new(model: User, filter: ['created_at > ?', DateTime.now] ) }
+
+      it "calculates the rate of change" do
+        expect(metric.rate).to eq 0
       end
     end
   end
@@ -109,7 +117,7 @@ describe Totalizer::Metric do
       expect(metric.finish).to eq 2
     end
 
-    it "calculates the rate of rate" do
+    it "calculates the rate of change" do
       expect(metric.rate).to eq 1
     end
   end

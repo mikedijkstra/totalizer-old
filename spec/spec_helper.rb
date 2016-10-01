@@ -11,6 +11,7 @@ require 'active_record'
 require 'factory_girl'
 require 'database_cleaner'
 require 'timecop'
+require 'mandrill_mailer/offline'
 
 ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
 load File.dirname(__FILE__) + '/support/schema.rb'

@@ -3,6 +3,9 @@ module Totalizer
     class InvalidData < StandardError
     end
 
+    class InvalidMetric < InvalidData
+    end
+
     class InvalidModel < InvalidData
     end
 

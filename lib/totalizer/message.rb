@@ -1,67 +1,76 @@
 module Totalizer
   class Message
-    attr_accessor :title, :pretext, :text, :duration
+    attr_accessor :description, :text, :duration
 
-    def days_string
-      "#{duration if duration != 1} #{'day'.pluralize(duration)}"
+    def period_string
+      if duration > 1
+        "Last #{duration} #{'day'.pluralize(duration)}"
+      else
+        duration == 0 ? 'Today' : 'Yesterday'
+      end
+    end
+
+    def percentage_string value
+      "#{(value.to_f * 100).round(2).to_s.gsub(/.0$/, '')}%"
     end
   end
 
-  class AcqusitionMessage < Message
-    def initialize growth_metric, duration
+  class MetricMessage < Message
+    def initialize metric, duration
       self.duration = duration
-      self.title = 'Acqusition'
-      self.pretext = "Signed up in the last #{days_string}"
-      self.text = "#{growth_metric.value} (Growth rate: #{(growth_metric.rate * 100).round(0)}%)"
+      self.text = "#{period_string}: #{metric.value} (∆ #{percentage_string(metric.rate)})"
     end
   end
 
-  class StepMessage < Message
+  class AcqusitionMessage < MetricMessage
+    def initialize metric, duration
+      super
+      self.description = "Signed up this period (with rate of change)"
+    end
+  end
+
+  class ActivityMessage < MetricMessage
+    def initialize metric, duration
+      super
+      self.description = "Key activities this period (with rate of change)"
+    end
+  end
+
+  class ActivationMessage < Message
     def initialize step, duration
       self.duration = duration
-      self.text = "#{step.finish}/#{step.start} (Conversion rate: #{(step.rate * 100).round(0)}%)"
+      self.text = "#{period_string}: #{step.start} → #{step.finish} (#{percentage_string(step.rate)})"
+      self.description = "Created this period and did key activity"
     end
   end
 
   class EngagementMessage < Message
     def initialize growth_metric, activity_metric, duration
       self.duration = duration
-      self.title = 'Engagement'
 
       existing_active = (growth_metric.start_ids & activity_metric.ids).size
-
-      self.pretext = "Signed up more than #{days_string} ago and did key activity in the last #{days_string}"
-      self.text = "#{existing_active}/#{growth_metric.start} (Engagement rate: #{(existing_active.to_f / growth_metric.start.to_f * 100).round(0)}%)"
+      self.text = "#{period_string}: #{percentage_string existing_active.to_f / growth_metric.start.to_f} (#{existing_active}/#{growth_metric.start})"
+      self.description = "Created before this period and did key activity this period"
     end
   end
 
-  class ActivationMessage < StepMessage
+  class RetentionMessage < Message
     def initialize step, duration
-      super
-      self.title = 'Activation'
-      self.pretext = "Signed up in the last #{days_string} and did key activity"
-    end
-  end
-
-  class RetentionMessage < StepMessage
-    def initialize step, duration
-      super
-      self.title = 'Retention'
-      self.pretext = "Did key activity more than #{days_string} ago and again in the last #{days_string}"
+      self.duration = duration
+      self.text = "#{period_string}: #{percentage_string(step.rate)} (#{step.finish}/#{step.start})"
+      self.description = "Did key activity the previous period and again this period"
     end
   end
 
   class ChurnMessage < Message
     def initialize growth_metric, previous_activity_metric, this_activity_metc, duration
       self.duration = duration
-      self.title = 'Churn'
-      self.pretext = "Acquired more than #{days_string} ago and did not do key activity in last #{days_string} over total acquired"
 
-      new_and_existing = growth_metric.finish
+      new_and_existing = previous_activity_metric.value + growth_metric.value
       lost_existing = (previous_activity_metric.ids - this_activity_metc.ids).size
       final = new_and_existing - lost_existing
-
-      self.text = "#{lost_existing}/#{new_and_existing} (Churn rate: #{(lost_existing.to_f / new_and_existing.to_f * 100).round(0)}%)"
+      self.text = "#{period_string}: #{percentage_string lost_existing.to_f / new_and_existing.to_f} (#{lost_existing}/#{new_and_existing})"
+      self.description = "Did key activity last period but not this period over the total who did key activity last period plus new users"
     end
   end
 end

@@ -48,7 +48,7 @@ module Totalizer
     end
 
     def rate
-      (finish - start).to_f / start.to_f
+      start == 0 ? 0 : (finish - start).to_f / start.to_f
     end
 
     private
