@@ -10,6 +10,7 @@ require 'totalizer'
 require 'active_record'
 require 'factory_girl'
 require 'database_cleaner'
+require 'timecop'
 
 ActiveRecord::Base.establish_connection adapter: "sqlite3", database: ":memory:"
 load File.dirname(__FILE__) + '/support/schema.rb'
@@ -17,7 +18,6 @@ require File.dirname(__FILE__) + '/support/models.rb'
 require File.dirname(__FILE__) + '/support/factories.rb'
 
 RSpec.configure do |config|
-  config.treat_symbols_as_metadata_keys_with_true_values = true
   config.run_all_when_everything_filtered = true
   config.filter_run :focus
 
@@ -34,10 +34,12 @@ RSpec.configure do |config|
   end
 
   config.before(:each) do
+    Timecop.freeze(Time.local(1990))
     DatabaseCleaner.start
   end
 
   config.after(:each) do
+    Timecop.return
     DatabaseCleaner.clean
   end
 end

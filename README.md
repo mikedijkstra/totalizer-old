@@ -1,8 +1,8 @@
 # Totalizer - Calculate important metrics in your Rails application.
 
-Provides tools to Ruby on Rails developers to create calculations for acquisition, activation, engagement, retention and churn.
+Provides tools to Ruby on Rails developers to create calculations for Acquisition, Activation, Engagement, Retention and Churn.
 
-## Installation
+### Installation
 
 Add this line to your application's Gemfile:
 
@@ -20,124 +20,281 @@ Or install it yourself as:
 
 *** 
 
-## Hosted Version
-
-I've had a number of requests for a hosted version. If this is something you're interested in please sign up to be notified at [http://www.totalizer.io](http://www.totalizer.io "Totalizer")
-
-***
-
-    
-
-## Metric
-
-A Metric is a calculation based on one of your models for a duration of time. To create a Metric just use this in your Rails application:
-
-```ruby
-Totalizer::Metric.new({ title: 'New Users', model: User })
-```
-
-This will return a Metric object with the following properties:
-
-```ruby
-{ title: 'New Users', value: 10, previous_value: 5, change: 5, change_label: "+5" }
-```
-
-#### Options
-
-You can pass the following options into the Metric:
-+ `title`: A string used to identify the Metric.
-+ `model` (required): The Rails model class that Totalizer will query.
-+ `start_date`: When to start measuring your records. Default is `Date.today.beginning_of_day`.
-+ `duration`: Duration (in days) to measure your records. Default is `7`. Must be an integer.
-+ `filter`: Write a custom query to filter to determine which records to use in
-  calculation. For example to find all users who created a public response you could
-pass in: `filter: "is_public = true"`.
-+ `map`: Default is `id`. Decide which field to map unique records on. For
-  example, to find unique users who did a response you could pass in: `map:
-'user_id'`.
-
-## Funnel
-
-A Funnel allows you to compare records from multiple metrics and returns a series of steps. To create a Funnel just use this in your Rails application:
-
-```ruby
-first_step_metric = Totalizer::Metric.new({ model: User })
-second_step_metric = Totalizer::Metric.new({ model: User, filter: "actions > 0" })
-Totalizer::Funnel.new title: 'Activation Funnel', metrics: [first_step_metric, second_step_metric]
-```
-
-This will return an array of Step objects with the following properties:
-
-```ruby
-[{ title: 'Signed up', value: 10, change: 0, change_label: "100%" }, { title: 'Activated', value: 5, change: 0.50, change_label: "50%" }]
-```
-
-#### Options
-
-You can pass the following options into the Funnel:
-+ `title`: A string used to identify the Funnel.
-+ `metrics`: An array of Metric objects to compare.
-
-## Step
-
-A Step object is the result of comparing two Metric objects in a  Funnel calculation. You do not need to create your own Step objects but you will interact with them.
-
-A Step object will have the following properties:
-+ `title`: A string used to identify the Metric used for the Step calculation.
-+ `value`: The number of Metric records.
-+ `change`: The change in Metric records from previous step.
-+ `change_label`: The change as a percentage String.
-
 ## Factory
 
-The Totalizer Factory makes it easy to create a summary of your metrics.
+The Totalizer Factory makes it easy to report on Acquisition, Activation, Engagement, Retention and Churn.
+
+By defining one growth metric, like new user creation, and one key activity metric, like creating a post, you can generate all five reports.
 
 To create a Factory just use this in your Rails application:
 
 ```ruby
-Totalizer::Factory.new
+growth_metric = Totalizer::Metric.new(model: User)
+activity_metric = Totalizer::Metric.new(model: Project, map: 'user_id')
+factory = Totalizer::Factory.new(growth_metric: growth_metric, activity_metric: activity_metric)
 ```
 
-#### Options
+This will return a message object for each calculation.
 
-You can pass the following options into the Factory:
-+ `durations`: An array for the durations to create metrics for. Default is `[7, 30]`.
-+ `start_date`: When to start measuring your records. Default is `Date.today.beginning_of_day`.
+#### Parameters
 
-### Counter
+You can pass the following parameters into the Factory:
 
-The Counter Factory will create a Metric for each duration in your Factory from your Factory start date.
++ `growth_metric`: (required) a Totalizer metric representing growth, usually a User model.
++ `activity_metric`: (required) a Totalizer metric representing the key activity a user should do within your application.
++ `date`: When to start measuring your records from. Must be a DateTime. Default is `now`.
++ `acquisition_duration`: Duration (in days) to measure your records. Must be an integer. Default is `7`.
++ `activation_duration`: Duration (in days) to measure your activation. Must be an integer. Default is `7`.
++ `engagement_duration`: Duration (in days) to measure your engagement. Must be an integer. Default is `7`.
++ `retention_duration`: Duration (in days) to measure your retention. Must be an integer. Default is `30`.
++ `churn_duration`: Duration (in days) to measure your churn. Must be an integer. Default is `30`.
 
-To build a Counter Factory just use this in your Rails application:
+### Acquisition
 
 ```ruby
-@factory = Totalizer::Factory.new
-@metrics = @factory.build :counter, model: User
+growth_metric = Totalizer::Metric.new(model: User)
+activity_metric = Totalizer::Metric.new(model: Project, map: 'user_id')
+factory = Totalizer::Factory.new(growth_metric: growth_metric, activity_metric: activity_metric)
+acquisition = factory.acquisition
+
+acquisition.title
+#=> "Acquisition"
+
+acquisition.pretext
+#=> "Signed up in the last 7 days"
+
+acquisition.text
+#=> "74 (Growth rate: 10%)"
 ```
 
-This will return an array of Metric objects with the following properties:
+### Activation
 
 ```ruby
-[{ title: 'Last 7 days', value: 10, previous_value: 5, change: 5, change_label: "+5" }, { title: 'Last 30 days', value: 100, previous_value: 110, change: -10, change_label: "-10" }]
+growth_metric = Totalizer::Metric.new(model: User)
+activity_metric = Totalizer::Metric.new(model: Project, map: 'user_id')
+factory = Totalizer::Factory.new(growth_metric: growth_metric, activity_metric: activity_metric)
+activation = factory.activation
+
+activation.title
+#=> "Activation"
+
+activation.pretext
+#=> "Signed up in the last 7 days and did key activity"
+
+activation.text
+#=> "63/90  (Conversion rate: 70%)"
 ```
 
-When you build a counter Factory you can pass all the same options you would use when you create a metric.
-
-### Funnel
-
-The Funnel Factory will create Funnels for each duration in your Factory from your Factory start date.
-
-To build a Funnel Factory just use this in your rails application:
+### Engagement
 
 ```ruby
-@factory = Totalizer::Factory.new
-@funnels = @factory.build :funnel, steps: [{ title: 'Signed up', model: User }, { title: 'Posted', model: Post, map: 'user_id' }]
+growth_metric = Totalizer::Metric.new(model: User)
+activity_metric = Totalizer::Metric.new(model: Project, map: 'user_id')
+factory = Totalizer::Factory.new(growth_metric: growth_metric, activity_metric: activity_metric)
+engagement = factory.engagement
+
+engagement.title
+#=> "Engagement"
+
+retention.pretext
+#=> "Signed up more than 7 days ago and did key activity in the last 7 days"
+
+engagement.text
+#=> "42/350 (Engagement rate: 12%)"
 ```
 
-This will return an array of Step objects with the following properties:
+### Retention
 
 ```ruby
-[{ title: 'Last 7 days', steps: [{ title: 'Signed up', value: 10, change: 0, change_label: "100%" }, { title: 'Activated', value: 5, change: 0.50, change_label: "50%" }]}, { title: 'Last 30 days', steps: [{ title: 'Signed up', value: 60, change: 0, change_label: "100%" }, { title: 'Activated', value: 36, change: 0.60, change_label: "60%" }]}]
+growth_metric = Totalizer::Metric.new(model: User)
+activity_metric = Totalizer::Metric.new(model: Project, map: 'user_id')
+factory = Totalizer::Factory.new(growth_metric: growth_metric, activity_metric: activity_metric)
+retention = factory.retention
+
+retention.title
+#=> "Retention"
+
+retention.pretext
+#=> "Did key activity more than 7 days ago and again in the last 7 days"
+
+retention.text
+#=> "42/75  56%"
+```
+
+### Churn
+
+```ruby
+growth_metric = Totalizer::Metric.new(model: User)
+activity_metric = Totalizer::Metric.new(model: Project, map: 'user_id')
+factory = Totalizer::Factory.new(growth_metric: growth_metric, activity_metric: activity_metric)
+churn = factory.churn
+
+churn.title
+#=> "Churn"
+
+churn.pretext
+#=> "Acquired more than 7 days ago and did not do key activity in last 7 days over total acquired"
+
+churn.text
+#=> "33/75  44%"
+```
+
+## Make your metrics visible
+
+Metrics are only worthwhile if the team actually sees them.
+
+With the results of your Factory you can:
++ Post them to Slack
++ Send them via email
++ Create a dashboard view
+
+***
+
+You can also access the underlying objects directly.
+
+### Metric
+
+A Metric is a calculation based on one of your models for a duration of time. To create a Metric just use this in your Rails application:
+
+```ruby
+metric = Totalizer::Metric.new(model: User)
+
+metric.value
+#=> 10 (the number of records for the period)
+
+metric.start
+#=> 20 (the number of records before the period)
+
+metric.finish
+#=> 30 (the number of records at the end of the period)
+
+metric.rate
+#=> 0.5 (how much the number changed over the period)
+```
+
+##### Parameters
+
+You can pass the following parameters into the Metric:
++ `model` (required): The Rails model class that Totalizer will query.
++ `date`: When to start measuring your records. Default is `now`.
++ `duration`: Duration (in days) to measure your records from. Must be an integer. Default is `7`.
++ `filter`: Write a custom query to determine which records to use in calculation. For example to find all users who created a public response you could pass in: `filter: "is_public = true"`.
++ `map`: Which field to map records on. For example, to find unique users who did a response you could pass in: `map: 'user_id'`. Default is `id`.
+
+### Step
+
+A step allows you to easily compare two sets of ids to see who converted.
+
+To create a Funnel just use this in your Rails application:
+
+```ruby
+first_metric = Totalizer::Metric.new(model: User)
+second_metric = Totalizer::Metric.new(model: User, filter: "actions > 0")
+step = Totalizer::Step.new first_step_metric.ids, second_step_metric.ids
+
+step.start
+#=> 20 (the number of records that started the step)
+
+step.finish
+#=> 10 (the number of records that finished the step)
+
+step.rate
+#=> 0.5 (the rate that converted from start to finish)
+
+step.ids
+#=> [1,2,3,4,5,6,7,8,9,10] (the ids of the records that finished)
+```
+
+You can use the result of one step to feed into another step. Continuing on the example above, you could do the following:
+
+```ruby
+third_metric = Totalizer::Metric.new(model: User, filter: "actions > 5")
+next_step = Totalizer::Step.new step.ids, third_metric.ids
+```
+
+***
+
+## Manual Calculations
+
+You can also report on Acquisition, Activation, Retention, Engagement and Churn yourself without using a Factory.
+
+### Acquisition
+
+```ruby
+acquisition = Totalizer::Metric.new(model: User, duration: 7)
+
+acquisition.value
+#=> 7
+
+acquisition.rate
+#=> 10
+```
+
+### Activation
+
+```ruby
+sign_up = Totalizer::Metric.new(model: User, duration: 7)
+do_action = Totalizer::Metric.new(model: User, filter: "actions > 0")
+activation = Totalizer::Step.new sign_up.ids, do_action.ids
+
+activation.start
+#=> 10
+
+activation.finish
+#=> 5
+
+activation.rate
+#=> 0.5
+```
+
+### Engagement
+
+```ruby
+sign_up = Totalizer::Metric.new(model: User, duration: 7)
+do_action = Totalizer::Metric.new(model: User, filter: "actions > 0")
+
+existing_active = (sign_up.start_ids & do_action.ids).size
+#=> 14
+
+"(existing_active.to_f / sign_up.start.to_f * 100).round(0)}%"
+#=> 12%
+```
+
+### Retention
+
+```ruby
+this_week = Totalizer::Metric.new(model: Post, map: 'user_id')
+last_week = Totalizer::Metric.new(model: Post, map: 'user_id')
+retention = Totalizer::Step.new this_week.ids, last_week.ids
+
+retention.start
+#=> 14
+
+retention.finish
+#=> 7
+
+retention.rate
+#=> 0.5
+
+"#{(retention.rate * 100).round(0)}%"
+#=> 50%
+```
+
+### Churn
+
+```ruby
+acquisition = Totalizer::Metric.new(model: User, duration: 30)
+active_last_period = Totalizer::Metric.new(model: Post, map: 'user_id', duration: 30, date: 30.days.ago)
+active_this_period = Totalizer::Metric.new(model: Post, map: 'user_id', duration: 30)
+
+new_and_existing_customers = acquisition.end_value
+#=> 100
+
+lost_existing_customers = (active_last_period.ids - active_this_period.ids).size
+#=> 5
+
+lost_existing_customers.to_f / (new_and_existing_customers - lost_existing_customers).to_f
+#=> 0.04
 ```
 
 ## Contributing
@@ -147,6 +304,12 @@ This will return an array of Step objects with the following properties:
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create a new Pull Request
+
+## Publishing
+
+1. Update the version number in `lib/totalizer/version.rb`
+2. Run `gem build totalizer.gemspec`
+3. Run `gem push totalizer-0.0.X.gem`
 
 ## Licence
 

@@ -1,78 +1,66 @@
 module Totalizer
   class Metric
+    attr_accessor :model, :date, :duration, :filter, :map, :ids, :value
+
     def initialize params
-      @params = params
-      validate!
-      calculate!
+      self.model = params[:model]
+      self.date = params[:date] || DateTime.now
+      self.duration = params[:duration] || 7
+      self.filter = params[:filter]
+      self.map = params[:map] || 'id'
+      validate_attributes!
     end
 
-    def change
-      value - previous_value
+    def attributes
+      { model: model, date: date, duration: duration, filter: filter, map: map }
     end
 
-    def change_label
-      (change > 0 ? "+#{change}" : change).to_s
-    end
-
-    def duration
-      @params[:duration] || 7
-    end
-
-    def filter
-      @params[:filter]
-    end
-
-    def ids
-      @ids
-    end
-
-    def map
-      @params[:map] || 'id'
-    end
-
-    def model
-      @params[:model]
-    end
-
-    def previous_ids
-      @previous_ids
-    end
-
-    def previous_value
-      previous_ids.size
+    def end_date
+      date
     end
 
     def start_date
-      @params[:start_date] || Date.today.beginning_of_day
+      date - duration.days
     end
 
-    def title
-      @params[:title]
+    def ids
+      @ids ||= calculate(created_at: start_date..end_date)
     end
 
     def value
       ids.size
     end
 
+    def start_ids
+      @start_ids ||= calculate(["created_at < ?", start_date])
+    end
+
+    def start
+      start_ids.size
+    end
+
+    def finish_ids
+      @finish_ids ||= calculate(["created_at < ?", end_date])
+    end
+
+    def finish
+      finish_ids.size
+    end
+
+    def rate
+      (finish - start).to_f / start.to_f
+    end
+
     private
 
-    def build_date_range duration_multiplier
-      start_date - (duration * duration_multiplier).days..start_date - (duration * (duration_multiplier - 1)).days
+    def calculate where
+      model.where(filter).where(where).map { |object| object.send(map) }.uniq
     end
 
-    def calculate!
-      @ids = calculate
-      @previous_ids = calculate(2)
-    end
-
-    def calculate duration_multiplier=1
-      model.where(filter).where(created_at: build_date_range(duration_multiplier)).map { |object| object.send(map) }.uniq
-    end
-
-    def validate!
-      if model.nil?
-        raise Errors::InvalidData
-      end
+    def validate_attributes!
+      raise Errors::InvalidModel if model.nil?
+      raise Errors::InvalidDate unless date.kind_of?(DateTime)
+      raise Errors::InvalidDuration unless duration.kind_of?(Integer)
     end
   end
 end

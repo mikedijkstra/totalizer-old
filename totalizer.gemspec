@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.version       = Totalizer::VERSION
   spec.authors       = ["Michael Dijkstra"]
   spec.email         = ["micdijkstra@gmail.com"]
-  spec.summary       = %q{Totalizer calculates the important metrics in your Rails app.}
+  spec.summary       = %q{Totalizer makes it easy to calculate important metrics in your Rails app.}
   spec.description   = %q{Provides tools to Ruby on Rails developers to create calculations for acquisiton, activation, engagement, retention and churn.}
   spec.homepage      = ""
   spec.license       = "MIT"
@@ -25,4 +25,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "sqlite3"
   spec.add_development_dependency "factory_girl_rails"
   spec.add_development_dependency "database_cleaner"
+  spec.add_development_dependency "timecop"
 end

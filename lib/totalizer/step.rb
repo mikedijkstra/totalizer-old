@@ -1,28 +1,37 @@
 module Totalizer
   class Step
-    def initialize params
-      @params = params
+    attr_accessor :start_ids, :end_ids
+
+    def initialize start_ids, end_ids
+      self.start_ids = start_ids
+      self.end_ids = end_ids
+      validate!
     end
 
-    def change
-      return 0 if @params[:change].to_s == 'NaN'
-      @params[:change] || 0
-    end
-
-    def change_label
-      "#{(change * 100).round(0)}%"
+    def rate
+      (finish.to_f/(start.to_f.nonzero? || 1)).round(2)
     end
 
     def ids
-      @params[:ids]
+      @ids ||= calculate
     end
 
-    def title
-      @params[:title]
+    def start
+      start_ids.size
     end
 
-    def value
-      @params[:value]
+    def finish
+      ids.size
+    end
+
+    private
+
+    def validate!
+      raise Errors::InvalidData unless start_ids.kind_of?(Array) && end_ids.kind_of?(Array)
+    end
+
+    def calculate
+      start_ids & end_ids
     end
   end
 end
