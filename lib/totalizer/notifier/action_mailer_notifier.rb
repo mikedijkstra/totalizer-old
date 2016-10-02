@@ -1,5 +1,3 @@
-require 'action_mailer'
-
 module Totalizer
   class ActionMailerNotifier < EmailNotifier
     def self.send body, options

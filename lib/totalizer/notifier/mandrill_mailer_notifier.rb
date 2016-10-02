@@ -1,5 +1,3 @@
-require 'mandrill_mailer'
-
 module Totalizer
   class MandrillMailerNotifier< EmailNotifier
     def self.send body, options

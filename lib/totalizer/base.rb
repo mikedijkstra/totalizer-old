@@ -1,6 +1,6 @@
 module Totalizer
   extend self
-  NOTIFIERS = { log: Totalizer::LogNotifier, action_mailer: Totalizer::ActionMailerNotifier, mandrill_mailer: Totalizer::MandrillMailerNotifier, slack: Totalizer::SlackNotifier }
+  NOTIFIERS = { log: 'Totalizer::LogNotifier', action_mailer: 'Totalizer::ActionMailerNotifier', mandrill_mailer: 'Totalizer::MandrillMailerNotifier', slack: 'Totalizer::SlackNotifier' }
   attr_reader :growth_metric, :activity_metric
 
   def growth_metric= metric
@@ -42,7 +42,7 @@ module Totalizer
   end
 
   def fire_notification notifier_options, message_groups
-    notifier = NOTIFIERS[notifier_options.first]
+    notifier = NOTIFIERS[notifier_options.first].constantize
     notifier.call(message_groups, notifier_options.last)
   end
 end
