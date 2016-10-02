@@ -4,7 +4,7 @@ module Totalizer
 
     def initialize params
       self.model = params[:model]
-      self.date = params[:date] || DateTime.now
+      self.date = params[:date] || DateTime.now.change(hour: 0)
       self.duration = params[:duration] || 7
       self.filter = params[:filter]
       self.map = params[:map] || 'id'

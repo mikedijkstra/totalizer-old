@@ -5,7 +5,7 @@ module Totalizer
     def initialize growth_metric, activity_metric, params={}
       self.growth_metric = growth_metric
       self.activity_metric = activity_metric
-      self.date = params[:date] || DateTime.now
+      self.date = params[:date] || DateTime.now.change(hour: 0)
       self.duration = params[:duration] || 7
       validate_attributes!
     end
