@@ -45,4 +45,12 @@ module Totalizer
     notifier = NOTIFIERS[notifier_options.first].constantize
     notifier.call(message_groups, notifier_options.last)
   end
+
+  def weekly_day
+    @weekly_day ||= 1
+  end
+
+  def weekly_day= day
+    @weekly_day = day
+  end
 end

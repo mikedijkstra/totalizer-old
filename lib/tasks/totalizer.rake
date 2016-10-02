@@ -14,7 +14,7 @@ namespace :totalizer do
   end
 
   task weekly: :validate do
-    Totalizer.logger.info "Totalizer: Daily"
+    Totalizer.logger.info "Totalizer: Weekly"
     messages = {
       activation: [Totalizer.generate(:activation, 7), Totalizer.generate(:activation, 30)],
       engagement: [Totalizer.generate(:engagement, 7), Totalizer.generate(:engagement, 30)],
@@ -22,5 +22,10 @@ namespace :totalizer do
       churn: [Totalizer.generate(:churn, 7), Totalizer.generate(:churn, 30)],
     }
     Totalizer.notify messages
+  end
+
+  task combined: :validate do
+    Rake::Task["daily"].invoke
+    Rake::Task["weekly"].invoke if DateTime.now.wday == Totalizer.weekly_day
   end
 end

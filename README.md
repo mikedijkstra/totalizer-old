@@ -179,6 +179,22 @@ Churn
   Last 30 days: 3.29% (34/1032)
 ```
 
+### Combined
+
+You can also run a single rake task every day which will run execute the daily
+task each time and execute the weekly task on a defined week day which by
+default is Monday.
+
+```
+$ rake totalizer:combined
+```
+
+To change the week day add the following line to your initializer:
+
+```ruby
+Totalizer.weekly_day = 0 #(0-6, Sunday is zero)
+```
+
 ***
 
 In addition to Metric, you can also use the following underlying objects.
