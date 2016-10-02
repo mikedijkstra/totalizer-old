@@ -25,7 +25,7 @@ namespace :totalizer do
   end
 
   task combined: :validate do
-    Rake::Task["daily"].invoke
-    Rake::Task["weekly"].invoke if DateTime.now.wday == Totalizer.weekly_day
+    Rake::Task["totalizer:daily"].invoke
+    Rake::Task["totalizer:weekly"].invoke if DateTime.now.wday == Totalizer.weekly_day
   end
 end
