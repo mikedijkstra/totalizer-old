@@ -185,6 +185,9 @@ You can also run a single rake task every day which will run execute the daily
 task each time and execute the weekly task on a defined week day which by
 default is Monday.
 
+This is handy for things like [Heroku Scheduler](https://elements.heroku.com/addons/scheduler)
+where you can only schedule daily tasks.
+
 ```
 $ rake totalizer:combined
 ```
