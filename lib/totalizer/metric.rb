@@ -54,7 +54,7 @@ module Totalizer
     private
 
     def calculate where
-      model.where(filter).where(where).map { |object| object.send(map) }.uniq
+      model.where(filter).where(where).map{ |object| object.send(map) }.uniq
     end
 
     def validate_attributes!

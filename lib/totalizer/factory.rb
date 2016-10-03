@@ -23,7 +23,7 @@ module Totalizer
     end
 
     def activity
-      activity_metric = Totalizer::Metric.new self.activity_metric.attributes.merge(date: date, duration: duration, map: 'id')
+      activity_metric = Totalizer::Metric.new self.activity_metric.attributes.merge(date: date, duration: duration)
       ActivityMessage.new(activity_metric, duration)
     end
 

@@ -85,6 +85,20 @@ describe Totalizer::Metric do
         expect(metric.rate).to eq 0
       end
     end
+
+    describe 'with multiple records' do
+      let(:metric) { Totalizer::Metric.new(model: Post, map: 'user_id') }
+      before do
+        FactoryGirl.create :post, user_id: user_1.id, created_at: 1.days.ago
+        FactoryGirl.create :post, user_id: user_1.id, created_at: 2.days.ago
+        FactoryGirl.create :post, user_id: user_2.id, created_at: 2.days.ago
+        FactoryGirl.create :post, user_id: user_3.id, created_at: 3.days.ago
+      end
+
+      it "counts the unique map ids for duration" do
+        expect(metric.value).to eq 3
+      end
+    end
   end
 
   describe "Filter" do

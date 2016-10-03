@@ -64,7 +64,7 @@ describe Totalizer::Factory do
 
     describe "Activity" do
       it "returns text" do
-        expect(factory.activity.text).to eq "Last 7 days: 2 (∆ 50%)"
+        expect(factory.activity.text).to eq "Last 7 days: 2 (∆ 25%)"
       end
     end
 

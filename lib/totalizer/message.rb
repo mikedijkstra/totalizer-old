@@ -32,7 +32,7 @@ module Totalizer
   class ActivityMessage < MetricMessage
     def initialize metric, duration
       super
-      self.description = "Key activities this period (with rate of change)"
+      self.description = "Did key activity this period (with rate of change)"
     end
   end
 
