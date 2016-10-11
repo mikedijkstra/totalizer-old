@@ -1,10 +1,11 @@
 module Totalizer
   class Factory
-    attr_accessor :growth_metric, :activity_metric, :date, :duration
+    attr_accessor :growth_metric, :activity_metric, :vanity_metric, :date, :duration
 
-    def initialize growth_metric, activity_metric, params={}
+    def initialize growth_metric, activity_metric, vanity_metric, params={}
       self.growth_metric = growth_metric
       self.activity_metric = activity_metric
+      self.vanity_metric = vanity_metric
       self.date = params[:date] || DateTime.now.change(hour: 0)
       self.duration = params[:duration] || 7
       validate_attributes!
@@ -13,6 +14,11 @@ module Totalizer
     def acquisition
       growth_metric = Totalizer::Metric.new self.growth_metric.attributes.merge(date: date, duration: duration)
       AcqusitionMessage.new(growth_metric, duration)
+    end
+
+    def vanity
+      vanity_metric = Totalizer::Metric.new self.vanity_metric.attributes.merge(date: date, duration: duration)
+      VanityMessage.new(vanity_metric, duration)
     end
 
     def activation
@@ -52,6 +58,7 @@ module Totalizer
     def validate_attributes!
       raise Errors::InvalidMetric unless growth_metric.kind_of?(Totalizer::Metric)
       raise Errors::InvalidMetric unless activity_metric.kind_of?(Totalizer::Metric)
+      raise Errors::InvalidMetric unless vanity_metric.kind_of?(Totalizer::Metric)
       raise Errors::InvalidDate unless date.kind_of?(DateTime)
       raise Errors::InvalidDuration unless duration.kind_of?(Integer)
     end

@@ -18,21 +18,28 @@ module Totalizer
   class MetricMessage < Message
     def initialize metric, duration
       self.duration = duration
-      self.text = "#{period_string}: #{metric.value} (∆ #{percentage_string(metric.rate)})"
+      self.text = "#{period_string}: #{metric.value} (∆ #{percentage_string(metric.rate)} | Σ #{metric.finish})"
     end
   end
 
   class AcqusitionMessage < MetricMessage
     def initialize metric, duration
       super
-      self.description = "Signed up this period (with rate of change)"
+      self.description = Totalizer.descriptions.acquisition
+    end
+  end
+
+  class VanityMessage < MetricMessage
+    def initialize metric, duration
+      super
+      self.description = Totalizer.descriptions.vanity
     end
   end
 
   class ActivityMessage < MetricMessage
     def initialize metric, duration
       super
-      self.description = "Did key activity this period (with rate of change)"
+      self.description = Totalizer.descriptions.activity
     end
   end
 
@@ -40,7 +47,7 @@ module Totalizer
     def initialize step, duration
       self.duration = duration
       self.text = "#{period_string}: #{step.start} → #{step.finish} (#{percentage_string(step.rate)})"
-      self.description = "Created this period and did key activity"
+      self.description = Totalizer.descriptions.activation
     end
   end
 
@@ -50,7 +57,7 @@ module Totalizer
 
       existing_active = (growth_metric.start_ids & activity_metric.ids).size
       self.text = "#{period_string}: #{percentage_string existing_active.to_f / growth_metric.start.to_f} (#{existing_active}/#{growth_metric.start})"
-      self.description = "Created before this period and did key activity this period"
+      self.description = Totalizer.descriptions.engagement
     end
   end
 
@@ -58,7 +65,7 @@ module Totalizer
     def initialize step, duration
       self.duration = duration
       self.text = "#{period_string}: #{percentage_string(step.rate)} (#{step.finish}/#{step.start})"
-      self.description = "Did key activity the previous period and again this period"
+      self.description = Totalizer.descriptions.retention
     end
   end
 
@@ -70,7 +77,7 @@ module Totalizer
       lost_existing = (previous_activity_metric.ids - this_activity_metc.ids).size
       final = new_and_existing - lost_existing
       self.text = "#{period_string}: #{percentage_string lost_existing.to_f / new_and_existing.to_f} (#{lost_existing}/#{new_and_existing})"
-      self.description = "Did key activity last period but not this period over the total who did key activity last period plus new users"
+      self.description = Totalizer.descriptions.churn
     end
   end
 end

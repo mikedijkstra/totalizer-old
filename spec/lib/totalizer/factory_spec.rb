@@ -3,29 +3,34 @@ require 'spec_helper'
 describe Totalizer::Factory do
   let(:growth_metric) { Totalizer::Metric.new model: User }
   let(:activity_metric) { Totalizer::Metric.new model: Post, map: 'user_id' }
+  let(:vanity_metric) { Totalizer::Metric.new model: Post }
   let(:duration) { nil }
   let(:date) { nil }
-  let(:factory) { Totalizer::Factory.new growth_metric, activity_metric, date: date }
+  let(:factory) { Totalizer::Factory.new growth_metric, activity_metric, vanity_metric, date: date }
 
   describe "Validate" do
     it "requires metrics" do
-      expect{ Totalizer::Factory.new('fake', 'metric') }.to raise_exception(Totalizer::Errors::InvalidMetric)
+      expect{ Totalizer::Factory.new('fake', 'metric', 'here') }.to raise_exception(Totalizer::Errors::InvalidMetric)
     end
 
     it "requires activity metric" do
-      expect{ Totalizer::Factory.new(growth_metric, 'metric') }.to raise_exception(Totalizer::Errors::InvalidMetric)
+      expect{ Totalizer::Factory.new(growth_metric, 'metric', vanity_metric) }.to raise_exception(Totalizer::Errors::InvalidMetric)
     end
 
     it "requires growth metric" do
-      expect{ Totalizer::Factory.new('fake', activity_metric) }.to raise_exception(Totalizer::Errors::InvalidMetric)
+      expect{ Totalizer::Factory.new('fake', activity_metric, vanity_metric) }.to raise_exception(Totalizer::Errors::InvalidMetric)
+    end
+
+    it "requires vanity metric" do
+      expect{ Totalizer::Factory.new(growth_metric, activity_metric, 'here') }.to raise_exception(Totalizer::Errors::InvalidMetric)
     end
 
     it "requires a valid datetime" do
-      expect{ Totalizer::Factory.new(growth_metric, activity_metric, date: 'Whenever') }.to raise_exception(Totalizer::Errors::InvalidDate)
+      expect{ Totalizer::Factory.new(growth_metric, activity_metric, vanity_metric, date: 'Whenever') }.to raise_exception(Totalizer::Errors::InvalidDate)
     end
 
     it "requires a duration" do
-      expect{ Totalizer::Factory.new(growth_metric, activity_metric, duration: 'Whatever') }.to raise_exception(Totalizer::Errors::InvalidDuration)
+      expect{ Totalizer::Factory.new(growth_metric, activity_metric, vanity_metric, duration: 'Whatever') }.to raise_exception(Totalizer::Errors::InvalidDuration)
     end
   end
 
@@ -36,6 +41,17 @@ describe Totalizer::Factory do
 
     it "defaults to 7 day acquisition duration" do
       expect(factory.duration).to eq 7
+    end
+
+    it "defaults description text" do
+      expect(factory.vanity.description).to eq "Total this period (with rate of change)"
+    end
+
+    it "overrides description text" do
+      original = Totalizer.descriptions.vanity
+      Totalizer.descriptions.vanity = "Sites created"
+      expect(factory.vanity.description).to eq "Sites created"
+      Totalizer.descriptions.vanity = original
     end
   end
 
@@ -58,13 +74,19 @@ describe Totalizer::Factory do
 
     describe "Acquisition" do
       it "returns text" do
-        expect(factory.acquisition.text).to eq "Last 7 days: 2 (∆ 50%)"
+        expect(factory.acquisition.text).to eq "Last 7 days: 2 (∆ 50% | Σ 6)"
+      end
+    end
+
+    describe "Vanity" do
+      it "returns text" do
+        expect(factory.vanity.text).to eq "Last 7 days: 2 (∆ 50% | Σ 6)"
       end
     end
 
     describe "Activity" do
       it "returns text" do
-        expect(factory.activity.text).to eq "Last 7 days: 2 (∆ 25%)"
+        expect(factory.activity.text).to eq "Last 7 days: 2 (∆ 25% | Σ 5)"
       end
     end
 

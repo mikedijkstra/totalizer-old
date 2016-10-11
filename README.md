@@ -1,8 +1,8 @@
-# Totalizer - Calculate and share important metrics in your Rails application.
+# Totalizer - Calculate and share product and engagement metrics in your Rails application.
 
-Totalizer makes it easy for Ruby on Rails developers to report on Acquisition, Activation, Activity, Engagement, Retention and Churn.
+Totalizer makes it easy for Ruby on Rails developers to report on Product and Engagement metrics.
 
-By defining two key metrics, Growth and Key Activity, all five reports can be generated.
+By defining three metrics, Growth, Vanity and Key Activity, you can generate reports on Acquisition, Activity, Vanity, Activation, Engagement, Retention and Churn.
 
 Metrics are only worthwhile if your team sees them so Totalizer includes notifiers for Slack and email.
 
@@ -28,6 +28,7 @@ You need to define your Growth Metric and Key Activity Metric in order to use To
 # config/initializers/totalizer.rb
 
 Totalizer.growth_metric = Totalizer::Metric.new model: User
+Totalizer.vanity_metric = Totalizer::Metric.new model: Post
 Totalizer.activity_metric = Totalizer::Metric.new model: Post, map: 'user_id'
 ```
 
@@ -139,20 +140,21 @@ This will generate the following report:
 
 ```
 Acquisition
-  Yesterday: 20 (∆ 10%)
-  Last 7 days: 100 (∆ 7%)
   Signed up this period (with rate of change)
+  Yesterday: 20 (∆ 10%)
+Vanity
+  Total this period (with rate of change)
+  Yesterday: 15 (∆ 5%)
 Activity
-  Yesterday: 60 (∆ 9%)
-  Last 7 days: 120 (∆ 8%)
   Key activities this period (with rate of change)
+  Yesterday: 60 (∆ 9%)
 ```
 
 ### Weekly
 
-Every week it’s important to review your important metrics to ensure you are trending in the right direction.
+Every week it's important to review your important metrics to ensure you are trending in the right direction.
 
-Totalizer generates your Activation, Engagement, Retention and Churn for the previous week and previous month.
+Totalizer generates your Acquisition, Vanity, Activity, Activation, Engagement, Retention and Churn for the previous week and previous month.
 
 ```
 $ rake totalizer:weekly
@@ -161,6 +163,18 @@ $ rake totalizer:weekly
 This will generate the following report:
 
 ```
+Acquisition
+  Signed up this period (with rate of change)
+  Last 7 days: 77 (∆ 7%)
+  Last 30 days: 444 (∆ 10%)
+Vanity
+  Total this period (with rate of change)
+  Last 7 days: 92 (∆ 4%)
+  Last 30 days: 412 (∆ 5%)
+Activity
+  Key activities this period (with rate of change)
+  Last 7 days: 120 (∆ 8%)
+  Last 30 days: 250 (∆ 6%)
 Activation
   Created this period and did key activity
   Last 7 days: 77 → 58 (75.32%)
@@ -177,6 +191,18 @@ Churn
   Did key activity last period but not this period over the total who did key activity last period plus new users
   Last 7 days: 6.21% (9/145)
   Last 30 days: 3.29% (34/1032)
+```
+
+To change the descriptions for each metric you can add the following to your
+initializer:
+
+```ruby
+Totalizer.descriptions.acquisition = "New users"
+Totalizer.descriptions.vanity = "Posts created"
+Totalizer.descriptions.activity = "Users who created post"
+Totalizer.descriptions.engagement = "Existing users who created post"
+Totalizer.descriptions.retention = "Existing user who created post again"
+Totalizer.descriptions.churn = "Existing user who did not do key activity"
 ```
 
 ### Combined
@@ -198,7 +224,7 @@ To change the week day add the following line to your initializer:
 Totalizer.weekly_day = 0 #(0-6, Sunday is zero)
 ```
 
-***
+---
 
 In addition to Metric, you can also use the following underlying objects.
 
